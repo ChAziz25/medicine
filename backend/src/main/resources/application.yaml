@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/medicine
+    username: medicine_project
+    password: medicine
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      format_sql: true
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+jwt:
+  secret: fSrKmSYoeQHwTY6b9qZasCwBiRNfy2sX4ylmcvXhDJ4=
+  expiration: 3600000  # 1 hour in ms
