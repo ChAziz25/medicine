@@ -1,33 +1,47 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/lib/auth-context";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "main page",
+  title: "MedStage — Plateforme de Gestion des Stages Médicaux",
+  description:
+    "Plateforme gouvernementale de gestion des stages médicaux reliant les étudiants, les hôpitaux et les universités en Tunisie.",
+  generator: "v0.app",
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export const viewport: Viewport = {
+  colorScheme: "light",
+  themeColor: "#ffffff",
+};
 
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang="fr"
+      className={`light ${inter.variable} ${ibmPlexMono.variable}`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="bg-background font-sans antialiased">
+        <AuthProvider>{children}</AuthProvider>
+        {process.env.NODE_ENV === "production"}
+      </body>
     </html>
   );
 }
