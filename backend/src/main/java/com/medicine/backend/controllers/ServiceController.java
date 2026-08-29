@@ -97,6 +97,7 @@ public class ServiceController {
         try {
             UUID hospitalId = UUID.fromString(body.get("hospitalId").toString());
             UUID serviceId = UUID.fromString(body.get("serviceId").toString());
+            int capacity = (int) body.get("capacity");
 
             Hospital hospital = hospitalRepository.findById(hospitalId)
                     .orElseThrow(() -> new RuntimeException("hospital not found"));
@@ -104,7 +105,7 @@ public class ServiceController {
             Service service = serviceRepository.findById(serviceId)
                     .orElseThrow(() -> new RuntimeException("service not found"));
 
-            HospitalService hospitalService = new HospitalService(hospital, service);
+            HospitalService hospitalService = new HospitalService(hospital, service, capacity);
             hospitalServiceRepository.save(hospitalService);
 
             return ResponseEntity.ok(Map.of(

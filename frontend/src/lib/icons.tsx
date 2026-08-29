@@ -237,6 +237,13 @@ export const Users = make(
   </>
 )
 
+export const Mail = make(
+  <>
+    <rect x="2" y="4" width="20" height="16" rx="2" />
+    <path d="M2 8l10 5 10-5" />
+  </>
+)
+
 export const X = make(
   <>
     <line x1="18" y1="6" x2="6" y2="18" />

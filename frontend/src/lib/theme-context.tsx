@@ -36,6 +36,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
     if (stored === 'dark' || stored === 'light') {
       applyTheme(stored)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setThemeState(stored)
     }
   }, [])

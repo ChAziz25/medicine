@@ -4,6 +4,7 @@ import com.medicine.backend.models.*;
 import com.medicine.backend.models.users.*;
 import com.medicine.backend.repositories.*;
 import com.medicine.backend.services.JwtService;
+import com.medicine.backend.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -26,11 +27,13 @@ public class UserController {
     private final H_EmployeeRepository h_employeeRepository;
     private final TeacherRepository teacherRepository;
     private final StudentRepository studentRepository;
+    private final StudentVerificationRepository studentVerificationRepository;
     private final HospitalServiceRepository hospitalServiceRepository;
     private final ApplicationRepository applicationRepository;
     private final JwtService jwtService;
+    private final UserService userService;
 
-    public UserController(UserRepository userRepository, AdminRepository adminRepository, H_AdminRepository hAdminRepository, Uni_AdminRepository uniAdminRepository, HospitalRepository hospitalRepository, UniversityRepository universityRepository, H_EmployeeRepository hEmployeeRepository, TeacherRepository teacherRepository, StudentRepository studentRepository, HospitalServiceRepository hospitalServiceRepository, ApplicationRepository applicationRepository, JwtService jwtService) {
+    public UserController(UserRepository userRepository, AdminRepository adminRepository, H_AdminRepository hAdminRepository, Uni_AdminRepository uniAdminRepository, HospitalRepository hospitalRepository, UniversityRepository universityRepository, H_EmployeeRepository hEmployeeRepository, TeacherRepository teacherRepository, StudentRepository studentRepository, StudentVerificationRepository studentVerificationRepository, HospitalServiceRepository hospitalServiceRepository, ApplicationRepository applicationRepository, JwtService jwtService, UserService userService) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
         h_adminRepository = hAdminRepository;
@@ -40,48 +43,31 @@ public class UserController {
         h_employeeRepository = hEmployeeRepository;
         this.teacherRepository = teacherRepository;
         this.studentRepository = studentRepository;
+        this.studentVerificationRepository = studentVerificationRepository;
         this.hospitalServiceRepository = hospitalServiceRepository;
         this.applicationRepository = applicationRepository;
         this.jwtService = jwtService;
+        this.userService = userService;
     }
 
-    @PostMapping("/StudentRegister")
-    public ResponseEntity<?> registerStudent(@RequestBody Map<String, Object> body) {
+    @PostMapping("/AdminRegister")
+    public ResponseEntity<?> registerAdmin(@RequestBody Map<String, Object> body) {
         try {
             String name = body.get("name").toString();
             String email = body.get("email").toString();
             String password = body.get("password").toString();
 
-            Student student = new Student(name, email, password);
-            studentRepository.save(student);
+            Admin Admin = new Admin(name, email, password);
+            adminRepository.save(Admin);
 
             return ResponseEntity.ok(Map.of(
-                    "message", "Student Created",
-                    "Student name : ", name
+                    "message", "User Created",
+                    "User name : ", name
             ));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
-
-//    @PostMapping("/AdminRegister")
-//    public ResponseEntity<?> registerAdmin(@RequestBody Map<String, Object> body) {
-//        try {
-//            String name = body.get("name").toString();
-//            String email = body.get("email").toString();
-//            String password = body.get("password").toString();
-//
-//            Admin Admin = new Admin(name, email, password);
-//            adminRepository.save(Admin);
-//
-//            return ResponseEntity.ok(Map.of(
-//                    "message", "User Created",
-//                    "User name : ", name
-//            ));
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
-//        }
-//    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, Object> body) {
@@ -260,6 +246,48 @@ public class UserController {
         }
     }
 
+    @PostMapping("/StudentRegister")
+    public ResponseEntity<?> registerStudent(@RequestBody Map<String, Object> body) {
+        try {
+            String name = body.get("name").toString();
+            String email = body.get("email").toString();
+            String password = body.get("password").toString();
+            String verificationCode = body.get("verificationCode").toString();
+
+            StudentVerification verification = studentVerificationRepository.findById(verificationCode)
+                    .orElseThrow(() -> new RuntimeException("verification code maybe wrong"));
+
+            Student student = new Student(name, email, password, verification.getUniversity());
+            studentRepository.save(student);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Student Created",
+                    "Student name : ", name
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/addStudentCode")
+    public ResponseEntity<?> addStudentCode(@RequestBody Map<String, Object> body, HttpServletRequest request){
+        try {
+            String verificationCode = body.get("verificationCode").toString();
+
+            University university = userService.getUserUniversity(request);
+
+            StudentVerification studentVerification = new StudentVerification(verificationCode, university);
+            studentVerificationRepository.save(studentVerification);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Student Code Added",
+                    "Student code : ", verificationCode
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PostMapping("/Apply")
     public ResponseEntity<?> apply(@RequestBody Map<String, Object> body, HttpServletRequest request) {
         try {
@@ -271,6 +299,13 @@ public class UserController {
 
             HospitalService hospitalService = hospitalServiceRepository.findById(hospitalServiceId)
                     .orElseThrow(() -> new RuntimeException("student not found"));
+
+            if ( hospitalService.getCapacity() <= 0 ) {
+                return ResponseEntity.status(409).body(Map.of("error", "Sorry, No internship positions available"));
+            }
+
+            hospitalService.setCapacity(hospitalService.getCapacity() - 1 );
+            hospitalServiceRepository.save(hospitalService);
 
             Application application = new Application(student, hospitalService);
             applicationRepository.save(application);
@@ -328,6 +363,11 @@ public class UserController {
             } else {
                 application.setStatus(Status.REFUSED);
                 applicationRepository.save(application);
+
+                HospitalService hospitalService = application.getHospitalService();
+                hospitalService.setCapacity(hospitalService.getCapacity() + 1);
+                hospitalServiceRepository.save(hospitalService);
+
                 return ResponseEntity.ok(Map.of(
                         "message", "Application refused",
                         "student : ", application.getStudent().getName(),

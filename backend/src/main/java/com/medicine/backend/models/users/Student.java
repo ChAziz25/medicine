@@ -12,8 +12,9 @@ public class Student extends User {
 
     public Student() {}
 
-    public Student(String name, String email, String password) {
+    public Student(String name, String email, String password, University university) {
         super(name, email, password);
+        this.university = university;
     }
 
     public void setUniversity(University university) { this.university = university; }

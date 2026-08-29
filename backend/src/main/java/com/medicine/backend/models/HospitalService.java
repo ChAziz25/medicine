@@ -36,9 +36,10 @@ public class HospitalService {
 
     public HospitalService() {}
 
-    public HospitalService(Hospital hospital, Service service) {
+    public HospitalService(Hospital hospital, Service service, int capacity) {
         this.hospital = hospital;
         this.service = service;
+        this.capacity = capacity;
     }
 
     @PrePersist

@@ -3,7 +3,6 @@ package com.medicine.backend.models;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Entity

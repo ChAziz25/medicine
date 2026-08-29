@@ -16,7 +16,7 @@ export const ROLE_HOME: Record<Role, string> = {
   STUDENT: '/student',
   HOSPITAL_ADMIN: '/hospital',
   HOSPITAL_EMPLOYEE: '/hospital',
-  UNIVERSITY_ADMIN: '/admin',
+  UNIVERSITY_ADMIN: '/university-admin',
   TEACHER: '/admin',
   SYSTEM_ADMIN: '/admin',
   ADMIN: '/admin',

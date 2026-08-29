@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useState, type ReactNode } from 'react'
-import { Plus, Pencil, Trash2, type LucideIcon } from '@/lib/icons'
-import { Button } from '@/components/ui/button'
+import { useState, type ReactNode } from "react";
+import { Plus, Pencil, Trash2, type LucideIcon } from "@/lib/icons";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -10,36 +10,36 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Modal } from '@/components/shared/modal'
-import { AsyncContent } from '@/components/shared/async-content'
-import { EmptyState } from '@/components/shared/empty-state'
-import { PageHeader } from '@/components/shared/page-header'
+} from "@/components/ui/table";
+import { Modal } from "@/components/shared/modal";
+import { AsyncContent } from "@/components/shared/async-content";
+import { EmptyState } from "@/components/shared/empty-state";
+import { PageHeader } from "@/components/shared/page-header";
 
 export type Column<T> = {
-  key: string
-  header: string
-  render: (row: T) => ReactNode
-  className?: string
-}
+  key: string;
+  header: string;
+  render: (row: T) => ReactNode;
+  className?: string;
+};
 
 interface CrudManagerProps<T> {
-  title: string
-  description?: string
-  addLabel: string
-  columns: Column<T>[]
-  rows: T[]
-  loading: boolean
-  error: string | null
-  onRetry?: () => void
-  emptyIcon: LucideIcon
-  emptyTitle: string
-  emptyDescription: string
-  rowKey: (row: T) => string | number
-  renderForm: (args: { editing: T | null; close: () => void }) => ReactNode
-  onDelete?: (row: T) => Promise<void> | void
-  formTitleAdd: string
-  formTitleEdit: string
+  title: string;
+  description?: string;
+  addLabel: string;
+  columns: Column<T>[];
+  rows: T[];
+  loading: boolean;
+  error: string | null;
+  onRetry?: () => void;
+  emptyIcon: LucideIcon;
+  emptyTitle: string;
+  emptyDescription: string;
+  rowKey: (row: T) => string | number;
+  renderForm: (args: { editing: T | null; close: () => void }) => ReactNode;
+  onDelete?: (row: T) => Promise<void> | void;
+  formTitleAdd: string;
+  formTitleEdit: string;
 }
 
 export function CrudManager<T>({
@@ -60,29 +60,29 @@ export function CrudManager<T>({
   formTitleAdd,
   formTitleEdit,
 }: CrudManagerProps<T>) {
-  const [formOpen, setFormOpen] = useState(false)
-  const [editing, setEditing] = useState<T | null>(null)
-  const [deleting, setDeleting] = useState<T | null>(null)
-  const [deleteBusy, setDeleteBusy] = useState(false)
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<T | null>(null);
+  const [deleting, setDeleting] = useState<T | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
 
   function openAdd() {
-    setEditing(null)
-    setFormOpen(true)
+    setEditing(null);
+    setFormOpen(true);
   }
 
   function openEdit(row: T) {
-    setEditing(row)
-    setFormOpen(true)
+    setEditing(row);
+    setFormOpen(true);
   }
 
   async function confirmDelete() {
-    if (!deleting || !onDelete) return
-    setDeleteBusy(true)
+    if (!deleting || !onDelete) return;
+    setDeleteBusy(true);
     try {
-      await onDelete(deleting)
-      setDeleting(null)
+      await onDelete(deleting);
+      setDeleting(null);
     } finally {
-      setDeleteBusy(false)
+      setDeleteBusy(false);
     }
   }
 
@@ -187,11 +187,11 @@ export function CrudManager<T>({
               onClick={confirmDelete}
               disabled={deleteBusy}
             >
-              {deleteBusy ? 'Suppression…' : 'Supprimer'}
+              {deleteBusy ? "Suppression…" : "Supprimer"}
             </Button>
           </>
         }
       />
     </div>
-  )
+  );
 }

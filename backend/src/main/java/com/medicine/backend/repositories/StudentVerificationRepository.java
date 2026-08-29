@@ -1,4 +1,9 @@
 package com.medicine.backend.repositories;
 
-public class StudentVerificationRepository {
+import com.medicine.backend.models.StudentVerification;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface StudentVerificationRepository extends JpaRepository<StudentVerification, String> {
 }

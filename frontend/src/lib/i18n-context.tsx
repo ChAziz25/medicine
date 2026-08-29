@@ -42,6 +42,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       // ignore storage errors
     }
     if (stored === 'fr' || stored === 'en') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocaleState(stored)
     }
   }, [])

@@ -96,12 +96,17 @@ export default function HomePage() {
                   </Link>
                 </Button>
               ) : (
-                <Button asChild size="lg">
-                  <Link href="/login">
-                    {t("home.login_button")}
-                    <ArrowRight />
-                  </Link>
-                </Button>
+                <>
+                  <Button asChild size="lg">
+                    <Link href="/login">
+                      {t("home.login_button")}
+                      <ArrowRight />
+                    </Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline">
+                    <Link href="/register">{t("auth.register.title")}</Link>
+                  </Button>
+                </>
               )}
               <Button asChild size="lg" variant="outline">
                 <Link href="/student/hospitals">
