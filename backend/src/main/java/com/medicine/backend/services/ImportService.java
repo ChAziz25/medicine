@@ -11,11 +11,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 @Service
-public class importService {
+public class ImportService {
 
         private final StudentVerificationRepository studentVerificationRepository;
 
-        public importService(
+        public ImportService(
                 StudentVerificationRepository studentVerificationRepository
         ) {
             this.studentVerificationRepository = studentVerificationRepository;

@@ -5,11 +5,13 @@ import com.medicine.backend.models.users.*;
 import com.medicine.backend.repositories.*;
 import com.medicine.backend.services.JwtService;
 import com.medicine.backend.services.UserService;
+import com.medicine.backend.services.ImportService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Duration;
 import java.util.*;
@@ -32,8 +34,9 @@ public class UserController {
     private final ApplicationRepository applicationRepository;
     private final JwtService jwtService;
     private final UserService userService;
+    private final ImportService importService;
 
-    public UserController(UserRepository userRepository, AdminRepository adminRepository, H_AdminRepository hAdminRepository, Uni_AdminRepository uniAdminRepository, HospitalRepository hospitalRepository, UniversityRepository universityRepository, H_EmployeeRepository hEmployeeRepository, TeacherRepository teacherRepository, StudentRepository studentRepository, StudentVerificationRepository studentVerificationRepository, HospitalServiceRepository hospitalServiceRepository, ApplicationRepository applicationRepository, JwtService jwtService, UserService userService) {
+    public UserController(UserRepository userRepository, AdminRepository adminRepository, H_AdminRepository hAdminRepository, Uni_AdminRepository uniAdminRepository, HospitalRepository hospitalRepository, UniversityRepository universityRepository, H_EmployeeRepository hEmployeeRepository, TeacherRepository teacherRepository, StudentRepository studentRepository, StudentVerificationRepository studentVerificationRepository, HospitalServiceRepository hospitalServiceRepository, ApplicationRepository applicationRepository, JwtService jwtService, UserService userService, ImportService importService) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
         h_adminRepository = hAdminRepository;
@@ -48,6 +51,7 @@ public class UserController {
         this.applicationRepository = applicationRepository;
         this.jwtService = jwtService;
         this.userService = userService;
+        this.importService = importService;
     }
 
     @PostMapping("/AdminRegister")
@@ -332,24 +336,34 @@ public class UserController {
 
     @GetMapping("listApplicationsByHospitalId")
     public ResponseEntity<?> listApplicationsByHospitalId(HttpServletRequest request) {
-        UUID userId = UUID.fromString(request.getAttribute("userId").toString());
-        H_Admin h_admin = h_adminRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Hospital admin not found"));
+        Hospital hospital = userService.getUserHospital(request);
 
-        List<Application> applications = new ArrayList<>(
-                applicationRepository.findAllByHospitalServiceHospitalId(h_admin.getHospital().getId()));
+        List<Application> applications =
+                applicationRepository.findAllByHospitalServiceHospitalId(
+                        hospital.getId()
+                );
 
         return ResponseEntity.ok(applications);
     }
 
     @PatchMapping("applicationReview")
-    public ResponseEntity<?> applicationReview(@RequestBody Map<String, Object> body){
+    public ResponseEntity<?> applicationReview(@RequestBody Map<String, Object> body, HttpServletRequest request){
         try {
             UUID applicationId = UUID.fromString(body.get("applicationId").toString());
             Boolean accepted = (Boolean) body.get("accepted");
 
             Application application = applicationRepository.findById(applicationId)
                     .orElseThrow(() -> new RuntimeException("Application not found"));
+
+            UUID hospitalId = application.getHospitalService()
+                    .getHospital()
+                    .getId();
+
+            if (!userService.hasAccess(request, hospitalId)) {
+                return ResponseEntity.status(403).body(
+                        Map.of("error", "You do not have access to this application")
+                );
+            }
 
             if (accepted){
                 application.setStatus(Status.ACCEPTED);
@@ -377,6 +391,32 @@ public class UserController {
             }
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/uploadStudentCodes")
+    public ResponseEntity<?> uploadStudentCodes(
+            @RequestParam("file") MultipartFile file,
+            HttpServletRequest request
+    ) {
+        try {
+            UUID userId = UUID.fromString(
+                    request.getAttribute("userId").toString()
+            );
+
+            University university = userService.getUserUniversity(request);
+
+            int added = importService.importCodes(file, university);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Student codes imported",
+                    "added", added
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(
+                    Map.of("error", e.getMessage())
+            );
         }
     }
 }

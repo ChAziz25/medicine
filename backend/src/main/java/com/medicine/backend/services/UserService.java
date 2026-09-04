@@ -84,4 +84,24 @@ public class UserService {
                     throw new RuntimeException("User is not a university user");
         };
     }
+
+    public Hospital getUserHospital(HttpServletRequest request) {
+        UUID userId = UUID.fromString(request.getAttribute("userId").toString());
+        String role = request.getAttribute("role").toString();
+
+        return switch (role) {
+            case "H_Admin" ->
+                    h_adminRepository.findById(userId)
+                            .orElseThrow(() -> new RuntimeException("Hospital admin not found"))
+                            .getHospital();
+
+            case "H_Employee" ->
+                    h_employeeRepository.findById(userId)
+                            .orElseThrow(() -> new RuntimeException("Employee not found"))
+                            .getHospital();
+
+            default ->
+                    throw new RuntimeException("User is not a hospital user");
+        };
+    }
 }
