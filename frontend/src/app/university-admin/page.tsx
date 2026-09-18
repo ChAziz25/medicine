@@ -4,8 +4,10 @@ import Link from "next/link";
 import {
   Building2,
   GraduationCap,
+  KeyRound,
   ListChecks,
   Layers,
+  UserPlus,
 } from "@/lib/icons";
 import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n-context";
@@ -55,6 +57,16 @@ export default function UniversityAdminDashboardPage() {
       label: t("universityAdmin.dashboard.link_service_types"),
       icon: Layers,
       href: "/university-admin/service-types",
+    },
+    {
+      label: t("universityAdmin.dashboard.link_teachers"),
+      icon: UserPlus,
+      href: "/university-admin/teachers",
+    },
+    {
+      label: t("universityAdmin.dashboard.link_student_codes"),
+      icon: KeyRound,
+      href: "/university-admin/student-codes",
     },
   ];
 

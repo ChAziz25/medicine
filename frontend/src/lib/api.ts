@@ -66,6 +66,40 @@ export async function apiFetch<T>(
   return (await res.json()) as T;
 }
 
+/**
+ * Send `multipart/form-data` (used for file uploads). Unlike `apiFetch` we do
+ * NOT set the Content-Type header — the browser must generate it with the
+ * multipart boundary for the request to be parseable by Spring.
+ */
+export async function apiUpload<T>(
+  path: string,
+  formData: FormData,
+): Promise<T> {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      Accept: "application/json",
+    },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    let parsed: unknown = undefined;
+    try {
+      parsed = await res.json();
+    } catch {
+      // ignore non-JSON error bodies
+    }
+    const b = parsed as { message?: string; error?: string } | null;
+    const message =
+      b?.message ?? b?.error ?? `Request failed with status ${res.status}`;
+    throw new ApiError(res.status, message, parsed);
+  }
+
+  return (await res.json()) as T;
+}
+
 /* -- Response transformers ------------------------------------------------- */
 /* The Spring controllers return leaner DTOs than the frontend types expect.
    These helpers bridge the gap so the UI keeps working. */
@@ -143,8 +177,15 @@ export const authApi = {
   logout: () =>
     apiFetch<{ message: string }>("/user/logout", { method: "POST" }),
 
-  // POST /api/user/StudentRegister — creates a student account, body: { name, email, password }
-  registerStudent: (data: { name: string; email: string; password: string }) =>
+  // POST /api/user/StudentRegister — creates a student account.
+  // body: { name, email, password, verificationCode }
+  // The verification code (issued by the student's university) is mandatory.
+  registerStudent: (data: {
+    name: string;
+    email: string;
+    password: string;
+    verificationCode: string;
+  }) =>
     apiFetch<Record<string, unknown>>("/user/StudentRegister", {
       method: "POST",
       body: data,
@@ -245,6 +286,18 @@ export const hospitalApi = {
     apiFetch<Record<string, unknown>>("/user/applicationReview", {
       method: "PATCH",
       body: { applicationId: id, accepted: decision === "ACCEPTED" },
+    }),
+
+  // POST /api/user/H_EmployeeRegister — body: { name, email, password }
+  // Creates a HOSPITAL_EMPLOYEE account linked to the current admin's hospital.
+  createEmployee: (data: {
+    name: string;
+    email: string;
+    password: string;
+  }) =>
+    apiFetch<Record<string, unknown>>("/user/H_EmployeeRegister", {
+      method: "POST",
+      body: data,
     }),
 };
 
@@ -355,4 +408,45 @@ export const adminApi = {
       method: "POST",
       body: data,
     }),
+
+  // Admins
+  // POST /api/user/AdminRegister — body: { name, email, password }
+  createAdmin: (data: { name: string; email: string; password: string }) =>
+    apiFetch<Record<string, unknown>>("/user/AdminRegister", {
+      method: "POST",
+      body: data,
+    }),
+};
+
+/* -------------------------------------------------------------------------- */
+/* University admin                                                            */
+/* -------------------------------------------------------------------------- */
+
+export const universityApi = {
+  // POST /api/user/TeacherRegister — body: { name, email, password }
+  // Creates a TEACHER account linked to the current admin's university.
+  createTeacher: (data: { name: string; email: string; password: string }) =>
+    apiFetch<Record<string, unknown>>("/user/TeacherRegister", {
+      method: "POST",
+      body: data,
+    }),
+
+  // POST /api/user/addStudentCode — body: { verificationCode }
+  // Adds a single student verification code for the current admin's university.
+  addStudentCode: (verificationCode: string) =>
+    apiFetch<Record<string, unknown>>("/user/addStudentCode", {
+      method: "POST",
+      body: { verificationCode },
+    }),
+
+  // POST /api/user/uploadStudentCodes — multipart: file
+  // Bulk-imports student verification codes (one per line, header row skipped).
+  uploadStudentCodes: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiUpload<{ message: string; added: number }>(
+      "/user/uploadStudentCodes",
+      formData,
+    );
+  },
 };

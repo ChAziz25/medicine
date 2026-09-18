@@ -2,10 +2,12 @@ import {
   Building2,
   ClipboardList,
   GraduationCap,
+  KeyRound,
   LayoutDashboard,
   ListChecks,
   Stethoscope,
   Layers,
+  UserPlus,
   Users,
   type LucideIcon,
 } from "@/lib/icons";
@@ -45,6 +47,7 @@ export const HOSPITAL_NAV: SectionConfig = {
       href: "/hospital/applications",
       icon: ClipboardList,
     },
+    { label: "nav.employees", href: "/hospital/employees", icon: UserPlus },
   ],
 };
 
@@ -70,6 +73,7 @@ export const ADMIN_NAV: SectionConfig = {
       href: "/admin/university-admins",
       icon: GraduationCap,
     },
+    { label: "nav.admins", href: "/admin/admins", icon: Users },
   ],
 };
 
@@ -90,6 +94,16 @@ export const UNIVERSITY_ADMIN_NAV: SectionConfig = {
       label: "nav.serviceTypes",
       href: "/university-admin/service-types",
       icon: Layers,
+    },
+    {
+      label: "nav.teachers",
+      href: "/university-admin/teachers",
+      icon: UserPlus,
+    },
+    {
+      label: "nav.studentCodes",
+      href: "/university-admin/student-codes",
+      icon: KeyRound,
     },
   ],
 };

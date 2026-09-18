@@ -6,6 +6,7 @@ import {
   GraduationCap,
   Layers,
   ListChecks,
+  ShieldCheck,
   ArrowRight,
 } from '@/lib/icons'
 import { useI18n } from '@/lib/i18n-context'
@@ -97,6 +98,21 @@ export default function AdminDashboardPage() {
                 href: '/admin/services',
                 label: t('admin.services.title'),
                 icon: ListChecks,
+              },
+              {
+                href: '/admin/hospital-admins',
+                label: t('admin.hospitalAdmins.title'),
+                icon: Building2,
+              },
+              {
+                href: '/admin/university-admins',
+                label: t('admin.universityAdmins.title'),
+                icon: GraduationCap,
+              },
+              {
+                href: '/admin/admins',
+                label: t('admin.admins.title'),
+                icon: ShieldCheck,
               },
             ].map((link) => (
               <Button

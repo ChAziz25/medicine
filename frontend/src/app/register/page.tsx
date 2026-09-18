@@ -19,6 +19,7 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -28,7 +29,12 @@ export default function RegisterPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await authApi.registerStudent({ name, email, password });
+      await authApi.registerStudent({
+        name,
+        email,
+        password,
+        verificationCode,
+      });
       setSuccess(true);
       setTimeout(() => router.replace("/login"), 1200);
     } catch (err) {
@@ -124,6 +130,23 @@ export default function RegisterPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="verificationCode">
+                {t("auth.register.code")}
+              </Label>
+              <Input
+                id="verificationCode"
+                type="text"
+                autoComplete="off"
+                placeholder={t("auth.register.code_placeholder")}
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                {t("auth.register.code_hint")}
+              </p>
             </div>
 
             {error ? (

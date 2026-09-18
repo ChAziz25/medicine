@@ -237,6 +237,37 @@ export const Users = make(
   </>
 )
 
+export const UserPlus = make(
+  <>
+    <path d="M16 21v-2a4 4 0 0 0-8 0v2" />
+    <circle cx="12" cy="7" r="4" />
+    <line x1="22" y1="11" x2="16" y2="11" />
+    <line x1="19" y1="8" x2="19" y2="14" />
+  </>
+)
+
+export const KeyRound = make(
+  <>
+    <path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" />
+    <circle cx="16.5" cy="7.5" r=".5" fill="currentColor" />
+  </>
+)
+
+export const Upload = make(
+  <>
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="17 8 12 3 7 8" />
+    <line x1="12" y1="3" x2="12" y2="15" />
+  </>
+)
+
+export const ShieldCheck = make(
+  <>
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <polyline points="9 11 11 13 15 9" />
+  </>
+)
+
 export const Mail = make(
   <>
     <rect x="2" y="4" width="20" height="16" rx="2" />
